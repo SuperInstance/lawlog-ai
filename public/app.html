@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LawLog AI — Your Contract Companion</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#FAFAFA;--navy:#1E3A5F;--navy-light:#2A5082;--gold:#C9A23C;--gold-light:#D4B463;
+  --bg:#FAFAFA;--surface:#FFFFFF;--text:#1A1A2E;--text-muted:#6B7280;
+  --border:#E5E7EB;--danger:#DC2626;--warning:#F59E0B;--success:#10B981;--info:#3B82F6;
+  --radius:8px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+h1,h2,h3,h4{font-family:Georgia,'Times New Roman',serif;color:var(--navy);font-weight:700}
+a{color:var(--navy-light);text-decoration:none}
+a:hover{color:var(--gold)}
+
+/* Layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--navy);color:#fff;padding:0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-header h1{font-size:1.4rem;color:#fff;margin-bottom:2px}
+.sidebar-header p{font-size:.75rem;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase}
+.nav{list-style:none;padding:8px 0}
+.nav li{margin:2px 8px}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--radius);color:rgba(255,255,255,.7);font-size:.9rem;transition:all .15s}
+.nav a:hover,.nav a.active{background:rgba(255,255,255,.1);color:#fff}
+.nav a.active{border-left:3px solid var(--gold);padding-left:13px}
+.nav-icon{width:18px;text-align:center;font-size:1rem}
+.main{margin-left:260px;flex:1;padding:32px 40px;max-width:1200px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Header */
+.page-header{margin-bottom:28px}
+.page-header h2{font-size:1.6rem;margin-bottom:4px}
+.page-header p{color:var(--text-muted);font-size:.9rem}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-header h3{font-size:1.1rem}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.stat-value{font-size:2rem;font-weight:800;color:var(--navy);font-family:Georgia,serif}
+.stat-label{font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.stat.accent{border-left:4px solid var(--gold)}
+.stat.danger{border-left:4px solid var(--danger)}
+.stat.success{border-left:4px solid var(--success)}
+.stat.info{border-left:4px solid var(--info)}
+
+/* Tables */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:rgba(30,58,95,.03)}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.badge-active{background:#D1FAE5;color:#065F46}
+.badge-expired{background:#FEE2E2;color:#991B1B}
+.badge-pending{background:#FEF3C7;color:#92400E}
+.badge-completed{background:#DBEAFE;color:#1E40AF}
+.badge-overdue{background:#FEE2E2;color:#991B1B}
+.badge-low{background:#D1FAE5;color:#065F46}
+.badge-medium{background:#FEF3C7;color:#92400E}
+.badge-high{background:#FEE2E2;color:#991B1B}
+.badge-critical{background:#7F1D1D;color:#FEE2E2}
+.badge-info{background:#DBEAFE;color:#1E40AF}
+.badge-warning{background:#FEF3C7;color:#92400E}
+.badge-type{background:#EDE9FE;color:#5B21B6}
+.badge-clause{background:#FCE7F3;color:#9D174D}
+
+/* Alert cards */
+.alert-item{border-left:4px solid var(--border);padding:14px 18px;margin-bottom:10px;background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;box-shadow:var(--shadow)}
+.alert-item.critical{border-left-color:var(--danger)}
+.alert-item.warning{border-left-color:var(--warning)}
+.alert-item.info{border-left-color:var(--info)}
+.alert-title{font-weight:700;font-size:.9rem;margin-bottom:3px}
+.alert-detail{font-size:.82rem;color:var(--text-muted)}
+.alert-date{font-size:.75rem;color:var(--text-muted);margin-top:4px}
+
+/* Chat */
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 120px)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px 0}
+.chat-msg{margin-bottom:16px;display:flex;gap:12px}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.chat-msg.assistant .chat-avatar{background:var(--navy);color:#fff}
+.chat-msg.user .chat-avatar{background:var(--gold);color:#fff}
+.chat-bubble{max-width:70%;padding:12px 16px;border-radius:12px;font-size:.9rem;line-height:1.6}
+.chat-msg.assistant .chat-bubble{background:var(--surface);border:1px solid var(--border);border-top-left-radius:2px}
+.chat-msg.user .chat-bubble{background:var(--navy);color:#fff;border-top-right-radius:2px}
+.chat-input-wrap{display:flex;gap:10px;padding-top:12px;border-top:1px solid var(--border)}
+.chat-input{flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;font-family:inherit;outline:none;transition:border .15s}
+.chat-input:focus{border-color:var(--navy)}
+.chat-send{padding:12px 24px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;font-size:.9rem;transition:background .15s}
+.chat-send:hover{background:var(--navy-light)}
+.chat-send:disabled{opacity:.5;cursor:not-allowed}
+.typing-indicator{display:inline-block;width:6px;height:6px;background:var(--text-muted);border-radius:50%;margin:0 2px;animation:bounce .6s infinite alternate}
+.typing-indicator:nth-child(2){animation-delay:.15s}
+.typing-indicator:nth-child(3){animation-delay:.3s}
+@keyframes bounce{to{opacity:.3;transform:translateY(-4px)}}
+
+/* Definition card */
+.def-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.def-term{font-family:Georgia,serif;font-size:1.1rem;color:var(--navy);font-weight:700;margin-bottom:6px}
+.def-plain{font-size:.9rem;margin-bottom:8px;line-height:1.6}
+.def-meta{font-size:.78rem;color:var(--text-muted)}
+.def-diff{margin-top:6px;padding:8px 12px;background:#FFF7ED;border-radius:var(--radius);font-size:.82rem;border-left:3px solid var(--gold)}
+
+/* Risk card */
+.risk-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.risk-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.risk-contract{font-size:.78rem;color:var(--text-muted)}
+.risk-desc{font-size:.9rem;line-height:1.6;margin-bottom:10px}
+.risk-mitigation{padding:10px 14px;background:#F0FDF4;border-radius:var(--radius);font-size:.85rem;border-left:3px solid var(--success)}
+.risk-mitigation strong{color:var(--success)}
+
+/* Clause card */
+.clause-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.clause-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.clause-section{font-family:'Courier New',monospace;font-size:.82rem;background:var(--navy);color:#fff;padding:2px 8px;border-radius:4px}
+.clause-summary{font-size:.9rem;line-height:1.6;margin-bottom:8px}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{width:100%;position:relative}
+  .main{margin-left:0;padding:20px}
+  .app{flex-direction:column}
+  .stats{grid-template-columns:1fr 1fr}
+  .chat-bubble{max-width:85%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>LawLog AI</h1>
+      <p>Your Contract Companion</p>
+    </div>
+    <ul class="nav">
+      <li><a href="#" class="active" data-tab="dashboard"><span class="nav-icon">&#9632;</span> Dashboard</a></li>
+      <li><a href="#" data-tab="contracts"><span class="nav-icon">&#9776;</span> Contracts</a></li>
+      <li><a href="#" data-tab="obligations"><span class="nav-icon">&#10003;</span> Obligations</a></li>
+      <li><a href="#" data-tab="deadlines"><span class="nav-icon">&#128197;</span> Deadlines</a></li>
+      <li><a href="#" data-tab="clauses"><span class="nav-icon">&#167;</span> Clause Library</a></li>
+      <li><a href="#" data-tab="risks"><span class="nav-icon">&#9888;</span> Risk Matrix</a></li>
+      <li><a href="#" data-tab="definitions"><span class="nav-icon">&#128218;</span> Definitions</a></li>
+      <li><a href="#" data-tab="alerts"><span class="nav-icon">&#128276;</span> Alerts</a></li>
+      <li><a href="#" data-tab="chat"><span class="nav-icon">&#128172;</span> Chat with LawLog</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <!-- Dashboard -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p>Your legal obligations at a glance</p>
+      </div>
+      <div class="stats" id="dashboard-stats"></div>
+      <div class="card">
+        <div class="card-header"><h3>Active Alerts</h3></div>
+        <div id="dashboard-alerts"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Obligations Due This Month</h3></div>
+        <div class="table-wrap"><table id="dashboard-obligations"><thead><tr><th>Obligation</th><th>Contract</th><th>Due</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Expiring Contracts</h3></div>
+        <div class="table-wrap"><table id="dashboard-expiring"><thead><tr><th>Contract</th><th>Counterparty</th><th>Expires</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Contracts -->
+    <div id="tab-contracts" class="tab-content">
+      <div class="page-header">
+        <h2>Contract Registry</h2>
+        <p>All agreements in your portfolio</p>
+      </div>
+      <div class="table-wrap"><table id="contracts-table"><thead><tr><th>Name</th><th>Counterparty</th><th>Type</th><th>Effective</th><th>Expiry</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- Obligations -->
+    <div id="tab-obligations" class="tab-content">
+      <div class="page-header">
+        <h2>Obligation Tracker</h2>
+        <p>Every obligation across every contract</p>
+      </div>
+      <div class="table-wrap"><table id="obligations-table"><thead><tr><th>Obligation</th><th>Contract</th><th>Due Date</th><th>Frequency</th><th>Status</th><th>Responsible</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- Deadlines -->
+    <div id="tab-deadlines" class="tab-content">
+      <div class="page-header">
+        <h2>Deadline Calendar</h2>
+        <p>Upcoming dates that matter</p>
+      </div>
+      <div class="table-wrap"><table id="deadlines-table"><thead><tr><th>Contract</th><th>What's Due</th><th>Date</th><th>Reminders</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- Clauses -->
+    <div id="tab-clauses" class="tab-content">
+      <div class="page-header">
+        <h2>Clause Library</h2>
+        <p>Key clauses across all your agreements</p>
+      </div>
+      <div id="clauses-list"></div>
+    </div>
+
+    <!-- Risks -->
+    <div id="tab-risks" class="tab-content">
+      <div class="page-header">
+        <h2>Risk Matrix</h2>
+        <p>Risk assessment across all active contracts</p>
+      </div>
+      <div id="risks-list"></div>
+    </div>
+
+    <!-- Definitions -->
+    <div id="tab-definitions" class="tab-content">
+      <div class="page-header">
+        <h2>Legal Definitions</h2>
+        <p>Legalese translated to plain English</p>
+      </div>
+      <div id="definitions-list"></div>
+    </div>
+
+    <!-- Alerts -->
+    <div id="tab-alerts" class="tab-content">
+      <div class="page-header">
+        <h2>Active Alerts</h2>
+        <p>Deadlines, expirations, and risk warnings</p>
+      </div>
+      <div id="alerts-list"></div>
+    </div>
+
+    <!-- Chat -->
+    <div id="tab-chat" class="tab-content">
+      <div class="page-header">
+        <h2>Chat with LawLog</h2>
+        <p>Ask about any contract, obligation, deadline, or clause</p>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg assistant">
+            <div class="chat-avatar">L</div>
+            <div class="chat-bubble">Good day. I'm LawLog, your contract companion. I've read every agreement you've signed — your apartment lease, employment contract, freelance engagements, NDA, and purchase agreement. I know your obligations, deadlines, and risks across all of them. What would you like to discuss?</div>
+          </div>
+        </div>
+        <div class="chat-input-wrap">
+          <input type="text" class="chat-input" id="chat-input" placeholder="Ask about your contracts, obligations, deadlines..." autocomplete="off">
+          <button class="chat-send" id="chat-send">Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = '';
+let chatLoading = false;
+
+// Tab navigation
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.nav a').forEach(n => n.classList.remove('active'));
+    a.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + a.dataset.tab).classList.add('active');
+  });
+});
+
+// Helpers
+function badge(text, cls) { return `<span class="badge badge-${cls}">${text}</span>`; }
+function fmtDate(d) {
+  if (!d || d === 'N/A') return 'N/A';
+  try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return d; }
+}
+function daysUntil(d) {
+  if (!d || d === 'N/A') return Infinity;
+  return Math.ceil((new Date(d).getTime() - Date.now()) / 86400000);
+}
+
+// Fetch helpers
+async function api(path) {
+  const r = await fetch(API + path);
+  return r.json();
+}
+
+// Dashboard
+async function loadDashboard() {
+  const [contracts, obligations, deadlines, alerts] = await Promise.all([
+    api('/api/contracts'), api('/api/obligations'), api('/api/deadlines'), api('/api/alerts')
+  ]);
+  const active = contracts.filter(c => c.status === 'active').length;
+  const dueThisMonth = obligations.filter(o => o.status === 'pending' && daysUntil(o.dueDate) <= 30).length;
+  const expiring = contracts.filter(c => c.status === 'active' && c.expiryDate !== 'N/A' && daysUntil(c.expiryDate) <= 90).length;
+  const highAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'warning').length;
+
+  document.getElementById('dashboard-stats').innerHTML = `
+    <div class="stat accent"><div class="stat-value">${active}</div><div class="stat-label">Active Contracts</div></div>
+    <div class="stat info"><div class="stat-value">${dueThisMonth}</div><div class="stat-label">Obligations Due (30d)</div></div>
+    <div class="stat danger"><div class="stat-value">${expiring}</div><div class="stat-label">Expiring (90d)</div></div>
+    <div class="stat ${highAlerts > 0 ? 'danger' : 'success'}"><div class="stat-value">${highAlerts}</div><div class="stat-label">Active Alerts</div></div>
+  `;
+
+  // Alerts
+  const alertsHtml = alerts.slice(0, 5).map(a => `
+    <div class="alert-item ${a.severity}">
+      <div class="alert-title">${a.title}</div>
+      <div class="alert-detail">${a.detail}</div>
+      ${a.date ? `<div class="alert-date">${fmtDate(a.date)}</div>` : ''}
+    </div>`).join('');
+  document.getElementById('dashboard-alerts').innerHTML = alertsHtml || '<p style="color:var(--text-muted);font-size:.9rem">No active alerts</p>';
+
+  // Obligations this month
+  const dueNow = obligations.filter(o => o.status === 'pending' && daysUntil(o.dueDate) <= 30);
+  document.querySelector('#dashboard-obligations tbody').innerHTML = dueNow.map(o => `
+    <tr><td>${o.description}</td><td>${o.contractName.split('—')[0].trim()}</td>
+    <td>${fmtDate(o.dueDate)} <small>(${daysUntil(o.dueDate)}d)</small></td>
+    <td>${badge(o.status, o.status)}</td></tr>`).join('');
+
+  // Expiring
+  const exp = contracts.filter(c => c.status === 'active' && c.expiryDate !== 'N/A' && daysUntil(c.expiryDate) <= 180);
+  document.querySelector('#dashboard-expiring tbody').innerHTML = exp.map(c => `
+    <tr><td>${c.name}</td><td>${c.counterparty}</td>
+    <td>${fmtDate(c.expiryDate)} <small>(${daysUntil(c.expiryDate)}d)</small></td>
+    <td>${badge(c.status, c.status)}</td></tr>`).join('');
+}
+
+// Contracts
+async function loadContracts() {
+  const data = await api('/api/contracts');
+  document.querySelector('#contracts-table tbody').innerHTML = data.map(c => `
+    <tr><td><strong>${c.name}</strong></td><td>${c.counterparty}</td>
+    <td>${badge(c.type, 'type')}</td><td>${fmtDate(c.effectiveDate)}</td>
+    <td>${fmtDate(c.expiryDate)}</td><td>${badge(c.status, c.status)}</td></tr>`).join('');
+}
+
+// Obligations
+async function loadObligations() {
+  const data = await api('/api/obligations');
+  document.querySelector('#obligations-table tbody').innerHTML = data.map(o => `
+    <tr><td>${o.description}</td><td>${o.contractName.split('—')[0].trim()}</td>
+    <td>${fmtDate(o.dueDate)}</td><td>${badge(o.frequency, 'clause')}</td>
+    <td>${badge(o.status, o.status)}</td><td>${o.responsibleParty}</td></tr>`).join('');
+}
+
+// Deadlines
+async function loadDeadlines() {
+  const data = await api('/api/deadlines');
+  document.querySelector('#deadlines-table tbody').innerHTML = data.map(d => {
+    const rem = [];
+    if (d.reminder30) rem.push('30d');
+    if (d.reminder14) rem.push('14d');
+    if (d.reminder7) rem.push('7d');
+    return `<tr><td>${d.contractName.split('—')[0].trim()}</td><td>${d.whatsDue}</td>
+    <td>${fmtDate(d.date)} <small>(${daysUntil(d.date)}d)</small></td>
+    <td>${rem.map(r => badge(r, 'info')).join(' ')}</td></tr>`;
+  }).join('');
+}
+
+// Clauses
+async function loadClauses() {
+  const data = await api('/api/clauses');
+  document.getElementById('clauses-list').innerHTML = data.map(c => `
+    <div class="clause-card">
+      <div class="clause-header">
+        <span class="clause-section">${c.sectionNumber}</span>
+        ${badge(c.clauseType, 'clause')}
+        ${badge(c.riskLevel + ' risk', c.riskLevel)}
+      </div>
+      <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:6px">${c.contractName}</div>
+      <div class="clause-summary">${c.summary}</div>
+    </div>`).join('');
+}
+
+// Risks
+async function loadRisks() {
+  const data = await api('/api/risks');
+  document.getElementById('risks-list').innerHTML = data.map(r => `
+    <div class="risk-card">
+      <div class="risk-header">
+        ${badge(r.severity, r.severity)}
+        <strong style="font-size:.95rem">${r.riskDescription.slice(0, 80)}...</strong>
+      </div>
+      <div class="risk-contract">${r.contract}</div>
+      <div class="risk-desc">${r.riskDescription}</div>
+      <div class="risk-mitigation"><strong>Mitigation:</strong> ${r.mitigationSuggestion}</div>
+    </div>`).join('');
+}
+
+// Definitions
+async function loadDefinitions() {
+  const data = await api('/api/definitions');
+  document.getElementById('definitions-list').innerHTML = data.map(d => `
+    <div class="def-card">
+      <div class="def-term">${d.legalTerm}</div>
+      <div class="def-plain">${d.plainEnglish}</div>
+      <div class="def-meta">Used in: ${d.contracts.join(', ')}</div>
+      ${d.differences ? `<div class="def-diff"><strong>Differences across contracts:</strong> ${d.differences}</div>` : ''}
+    </div>`).join('');
+}
+
+// Alerts
+async function loadAlerts() {
+  const data = await api('/api/alerts');
+  document.getElementById('alerts-list').innerHTML = data.map(a => `
+    <div class="alert-item ${a.severity}">
+      <div class="alert-title">${badge(a.type, a.severity)} ${a.title}</div>
+      <div class="alert-detail">${a.detail}</div>
+      ${a.date ? `<div class="alert-date">${fmtDate(a.date)}</div>` : ''}
+    </div>`).join('');
+}
+
+// Chat
+function addMsg(role, text) {
+  const el = document.createElement('div');
+  el.className = `chat-msg ${role}`;
+  el.innerHTML = `<div class="chat-avatar">${role === 'assistant' ? 'L' : 'Y'}</div>
+    <div class="chat-bubble">${text}</div>`;
+  document.getElementById('chat-messages').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg || chatLoading) return;
+  chatLoading = true;
+  document.getElementById('chat-send').disabled = true;
+  input.value = '';
+  addMsg('user', msg);
+
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-msg assistant';
+  bubble.innerHTML = '<div class="chat-avatar">L</div><div class="chat-bubble"><span class="typing-indicator"></span><span class="typing-indicator"></span><span class="typing-indicator"></span></div>';
+  document.getElementById('chat-messages').appendChild(bubble);
+  bubble.scrollIntoView({ behavior: 'smooth' });
+  const textEl = bubble.querySelector('.chat-bubble');
+
+  try {
+    const res = await fetch(API + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg }),
+    });
+
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('text/event-stream')) {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let full = '';
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const p = JSON.parse(data);
+            if (p.content) { full += p.content; textEl.textContent = full; }
+            if (p.error) { textEl.textContent = 'Error: ' + p.error; }
+          } catch {}
+        }
+      }
+      if (!full) textEl.textContent = 'I received your message but had no response content.';
+    } else {
+      const json = await res.json();
+      textEl.textContent = json.reply || json.error || 'No response.';
+    }
+  } catch (err) {
+    textEl.textContent = 'Connection error. Please try again.';
+  }
+  chatLoading = false;
+  document.getElementById('chat-send').disabled = false;
+  bubble.scrollIntoView({ behavior: 'smooth' });
+}
+
+document.getElementById('chat-send').addEventListener('click', sendChat);
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+// Load all data
+loadDashboard(); loadContracts(); loadObligations(); loadDeadlines();
+loadClauses(); loadRisks(); loadDefinitions(); loadAlerts();
+</script>
+</body>
+</html>
