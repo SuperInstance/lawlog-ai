@@ -17,7 +17,7 @@ A repo-native AI for legal research and case tracking. It accumulates knowledge 
 ## Deploy
 
 ```bash
-git clone https://github.com/Lucineer/lawlog-ai.git
+git clone ./.git
 cd lawlog-ai
 npm install
 npx wrangler dev
@@ -30,3 +30,7 @@ Legal work is accumulation. Every case builds on precedent. Every brief referenc
 After a year, LawLog knows your practice area better than any new associate. After five years, it's irreplaceable.
 
 Author: Superinstance
+
+## License
+
+MIT — Built with ❤️ by [Superinstance](https://github.com/superinstance) & [Lucineer](https://github.com/Lucineer) (DiGennaro et al.)
