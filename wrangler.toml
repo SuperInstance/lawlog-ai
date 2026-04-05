@@ -1,9 +1,8 @@
+account_id = "049ff5e84ecf636b53b162cbb580aae6"
 name = "lawlog-ai"
-main = "src/index.ts"
-compatibility_date = "2024-12-01"
+main = "src/worker.ts"
+compatibility_date = "2024-01-01"
 
-[vars]
-DEEPSEEK_API_KEY = ""
-
-[site]
-bucket = "./public"
+[[kv_namespaces]]
+binding = "STATE"
+id = "42200f618fe8447e8cb66f4de3ee82ce"
