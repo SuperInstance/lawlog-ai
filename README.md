@@ -1,51 +1,45 @@
-# LawLog AI — Self-Hosted Legal Assistant
+# lawlog-ai
 
-You can sanity-check a contract without a bar membership. This is a private, self-hosted AI helper for legal text, built as a Cocapn Fleet vessel. It runs on your own infrastructure.
+You don't need a bar membership to spot concerning terms in a contract. This is a private, self-hosted AI assistant for legal text review, built as a Cocapn Fleet vessel. It runs exclusively on your own infrastructure.
 
----
+**Live Reference Instance:** [lawlog-ai.casey-digennaro.workers.dev](https://lawlog-ai.casey-digennaro.workers.dev)
 
-## Try the Reference Instance
-A public instance is available for testing. No signup required:
-https://lawlog-ai.casey-digennaro.workers.dev
+## Purpose
 
----
+You've likely stared at a rental agreement, freelance contract, or terms of service and wondered if you're missing something. This tool lets you get a second opinion without routing your private documents through a third-party service.
 
-## How It Works
-This tool provides a web interface and API for analyzing legal documents. It sends prompts directly from your deployed instance to your chosen LLM provider. Your data, API keys, and conversation context never pass through our servers.
+## What It Does
 
-**One Limitation:** You are responsible for sourcing and configuring your own LLM API keys, which requires accounts with those providers.
+*   **Private Analysis:** All requests go directly from your deployed worker to your chosen LLM provider's API. Your data never passes through any other server.
+*   **Provider Flexibility:** Configure it to use DeepSeek, Moonshot, DeepInfra, SiliconFlow, or other compatible LLM APIs.
+*   **Simple Deployment:** Deploy in under 2 minutes to Cloudflare Workers. No servers, databases, or complex build steps.
+*   **Optional Memory:** Enable private conversation history stored only in your Cloudflare KV namespace.
+*   **API Endpoint:** Includes a standard `/api/chat` endpoint for programmatic use, with a health check at `/`.
+
+## Key Principles
+
+1.  **Fork-First:** This is not a SaaS. You fork the repository, deploy it yourself, and maintain full control. There is no central platform, account, or rate limits we impose.
+2.  **Zero Dependencies:** The entire application is a single, readable JavaScript file. No `npm install` or external packages.
+3.  **No Upsells:** It performs the specific task of contract review. No email collection, advertising, or feature upselling.
 
 ## Quick Start
-1.  Fork this repository.
-2.  Deploy to Cloudflare Workers using `npx wrangler deploy`.
-3.  Add your LLM API key as a Cloudflare Secret (e.g., `DEEPSEEK_API_KEY`).
 
-## Features
-*   **Privacy-First:** Requests go directly from your edge instance to your LLM provider. No data is logged or stored by us.
-*   **Multi-Provider Support:** Configure with keys for DeepSeek, Moonshot, DeepInfra, or SiliconFlow. You pay them directly.
-*   **Self-Hosted:** You own your fork. There is no central service to depend on.
-*   **Simple Runtime:** Zero dependencies. Deploys to Cloudflare Workers in seconds.
-*   **Persistent Context:** Optional Cloudflare KV storage for maintaining conversation history across sessions.
-*   **Defined Endpoints:** Includes API routes for contract analysis and standard health checks.
+1.  **Fork** this repository.
+2.  **Deploy** to Cloudflare Workers using `npx wrangler deploy`.
+3.  Add your LLM API key as a Cloudflare Secret (`LLM_API_KEY`).
 
-## Configuration
-After deployment, visit `/setup` for instructions. Add your preferred LLM API key as a Cloudflare Secret:
-- `DEEPSEEK_API_KEY`
-- `MOONSHOT_API_KEY`
-- `DEEPINFRA_API_KEY`
-- `SILICONFLOW_API_KEY`
+After deployment, visit your worker's `/setup` page for detailed configuration instructions.
+
+## A Specific Limitation
+
+This tool uses general-purpose language models. For complex, high-stakes contracts (e.g., corporate merger agreements), its analysis may lack the nuanced context a specialized legal professional provides and may miss critical jurisdiction-specific clauses. Always verify its suggestions manually.
 
 ## Contributing
-This is a fork-first repository. Clone it, modify it for your needs, and deploy your own version. Pull requests for fixes and improvements are welcome.
+
+This is a fork-first repository. You are encouraged to clone and modify it for your specific needs. Pull requests for clear bug fixes and modest, scope-contained improvements are welcome.
 
 ## License
+
 MIT License
 
----
-
-Superinstance & Lucineer (DiGennaro et al.)
-
-<div>
-  <a href="https://the-fleet.casey-digennaro.workers.dev">Fleet</a> · 
-  <a href="https://cocapn.ai">Cocapn</a>
-</div>
+<div style="text-align:center;padding:16px;color:#64748b;font-size:.8rem"><a href="https://the-fleet.casey-digennaro.workers.dev" style="color:#64748b">The Fleet</a> &middot; <a href="https://cocapn.ai" style="color:#64748b">Cocapn</a></div>
