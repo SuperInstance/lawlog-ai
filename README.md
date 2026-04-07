@@ -1,36 +1,51 @@
-# LawLog AI — Legal Research Companion
+# LawLog AI — Self-Hosted Legal Assistant
 
-> *Your case law memory. A cocapn vessel for legal professionals.*
+You can sanity-check a contract without a bar membership. This is a private, self-hosted AI helper for legal text, built as a Cocapn Fleet vessel. It runs on your own infrastructure.
 
-## What It Is
+---
 
-A repo-native AI for legal research and case tracking. It accumulates knowledge about cases, statutes, precedents, and your firm's positions. Not a search engine — a persistent legal brain.
+## Try the Reference Instance
+A public instance is available for testing. No signup required:
+https://lawlog-ai.casey-digennaro.workers.dev
+
+---
+
+## How It Works
+This tool provides a web interface and API for analyzing legal documents. It sends prompts directly from your deployed instance to your chosen LLM provider. Your data, API keys, and conversation context never pass through our servers.
+
+**One Limitation:** You are responsible for sourcing and configuring your own LLM API keys, which requires accounts with those providers.
+
+## Quick Start
+1.  Fork this repository.
+2.  Deploy to Cloudflare Workers using `npx wrangler deploy`.
+3.  Add your LLM API key as a Cloudflare Secret (e.g., `DEEPSEEK_API_KEY`).
 
 ## Features
+*   **Privacy-First:** Requests go directly from your edge instance to your LLM provider. No data is logged or stored by us.
+*   **Multi-Provider Support:** Configure with keys for DeepSeek, Moonshot, DeepInfra, or SiliconFlow. You pay them directly.
+*   **Self-Hosted:** You own your fork. There is no central service to depend on.
+*   **Simple Runtime:** Zero dependencies. Deploys to Cloudflare Workers in seconds.
+*   **Persistent Context:** Optional Cloudflare KV storage for maintaining conversation history across sessions.
+*   **Defined Endpoints:** Includes API routes for contract analysis and standard health checks.
 
-- ⚖️ **Case tracking** — follows relevant cases and summarizes developments
-- 📋 **Brief analysis** — identifies strengths and weaknesses in legal arguments
-- 🔍 **Precedent mapping** — connects current cases to relevant precedents
-- 📝 **Memo generation** — drafts legal memoranda from accumulated context
-- 🔒 **Attorney-client privilege** — private repo model ensures confidentiality
+## Configuration
+After deployment, visit `/setup` for instructions. Add your preferred LLM API key as a Cloudflare Secret:
+- `DEEPSEEK_API_KEY`
+- `MOONSHOT_API_KEY`
+- `DEEPINFRA_API_KEY`
+- `SILICONFLOW_API_KEY`
 
-## Deploy
-
-```bash
-git clone ./.git
-cd lawlog-ai
-npm install
-npx wrangler dev
-```
-
-## Why Repo-Native for Law
-
-Legal work is accumulation. Every case builds on precedent. Every brief references prior research. A repo-native agent doesn't just find cases — it remembers the firm's history with similar cases, the strategies that worked, and the judges' tendencies.
-
-After a year, LawLog knows your practice area better than any new associate. After five years, it's irreplaceable.
-
-Author: Superinstance
+## Contributing
+This is a fork-first repository. Clone it, modify it for your needs, and deploy your own version. Pull requests for fixes and improvements are welcome.
 
 ## License
+MIT License
 
-MIT — Built with ❤️ by [Superinstance](https://github.com/superinstance) & [Lucineer](https://github.com/Lucineer) (DiGennaro et al.)
+---
+
+Superinstance & Lucineer (DiGennaro et al.)
+
+<div>
+  <a href="https://the-fleet.casey-digennaro.workers.dev">Fleet</a> · 
+  <a href="https://cocapn.ai">Cocapn</a>
+</div>
